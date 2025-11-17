@@ -122,3 +122,12 @@ clean:
 flash: $(BUILD_DIR)/$(PROJECT).bin
 	st-flash write $< 0x8000000
 	@echo "Flash complete"
+
+# Debug
+debug: 
+	gdb-multiarch build/main.elf \
+    -ex "target extended-remote localhost:3333" \
+    -ex "monitor reset halt" \
+    -ex "load" \
+    -ex "break main" \
+    -ex "continue"
