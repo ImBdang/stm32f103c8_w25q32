@@ -4,6 +4,7 @@
 #include "stm32f10x_flash.h"
 #include "bdang_systick.h"
 #include "w25q32.h"
+#include "bdang_uart.h"
 #include "spi1.h"
 
 /* Declaration zone ------------------------------------------------------ */
@@ -22,6 +23,7 @@ int main(void) {
     systick_init(1000);
     SPI1_Init();
     Init_LedPc13();
+    usart1_init();
 
     // uint8_t manu;
     // uint16_t id;
@@ -30,8 +32,10 @@ int main(void) {
     Test_W25Q32_WriteRead();
     while(1) {
         GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_RESET);
+        usart1_send_string("ImBdang\n");
         delay_ms(500);
         GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);
+        usart1_send_string("Or Bdang ?\n");
         delay_ms(500);
     }
     return 0;
