@@ -4,8 +4,11 @@
 #include "stm32f10x_flash.h"
 #include "bdang_systick.h"
 #include "w25q32.h"
+#include "stm32f10x_exti.h"
 #include "bdang_uart.h"
 #include "spi1.h"
+#include "misc.h"
+#include "stm32f1xx_it.h"
 
 /* Declaration zone ------------------------------------------------------ */
 void SystemClock_Config(void);
@@ -16,6 +19,40 @@ void Test_W25Q32_WriteRead(void);
 /* Global variables ------------------------------------------------------ */
 volatile uint32_t msTicks = 0;
 
+//PB3 4
+void test_btn(void){
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
+
+    GPIO_InitTypeDef gpiob_pin34_config = {
+        .GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4,
+        .GPIO_Mode = GPIO_Mode_IPU
+    };
+    GPIO_Init(GPIOB, &gpiob_pin34_config);
+
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource4);
+       
+    EXTI_ClearITPendingBit(EXTI_Line3);
+    EXTI_ClearITPendingBit(EXTI_Line4);
+    EXTI_InitTypeDef exti_config = {
+        .EXTI_Line = EXTI_Line3 | EXTI_Line4,
+        .EXTI_Mode = EXTI_Mode_Interrupt,
+        .EXTI_Trigger = EXTI_Trigger_Falling,
+        .EXTI_LineCmd = ENABLE
+    };
+    EXTI_Init(&exti_config);
+
+    NVIC_InitTypeDef nvic_config = {
+        .NVIC_IRQChannel = EXTI3_IRQn,
+        .NVIC_IRQChannelPreemptionPriority = 0,
+        .NVIC_IRQChannelSubPriority = 0,
+        .NVIC_IRQChannelCmd = ENABLE
+    };
+    NVIC_Init(&nvic_config);
+    nvic_config.NVIC_IRQChannel = EXTI4_IRQn;
+    NVIC_Init(&nvic_config);
+}
+
 
 /* MAIN function --------------------------------------------------------------- */
 int main(void) {
@@ -24,19 +61,10 @@ int main(void) {
     SPI1_Init();
     Init_LedPc13();
     usart1_init();
+    test_btn();
 
-    // uint8_t manu;
-    // uint16_t id;
-    // W25Q32_ReadID(&manu, &id);
-
-    Test_W25Q32_WriteRead();
     while(1) {
-        GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_RESET);
-        usart1_send_string("ImBdang\n");
-        delay_ms(500);
-        GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);
-        usart1_send_string("Or Bdang ?\n");
-        delay_ms(500);
+
     }
     return 0;
 }

@@ -29,6 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_it.h"
+#include "stm32f10x_exti.h"
 
 /** @addtogroup IO_Toggle
   * @{
@@ -134,13 +135,28 @@ void PendSV_Handler(void)
 }
 
 /**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-// void SysTick_Handler(void)
-// {
-// }
+ * @brief Handler EXTI3
+ * @param None
+ * @retval None
+ */
+void EXTI3_IRQHandler(void){
+    if(EXTI_GetITStatus(EXTI_Line3) != RESET){
+        usart1_send_string("EXTI3\n");
+        EXTI_ClearITPendingBit(EXTI_Line3);  
+    }
+}
+
+/**
+ * @brief Handler EXTI4
+ * @param None
+ * @retval None
+ */
+void EXTI4_IRQHandler(void){
+    if(EXTI_GetITStatus(EXTI_Line4) != RESET){
+        usart1_send_string("EXTI4\n");
+        EXTI_ClearITPendingBit(EXTI_Line4);
+    }
+}
 
 /******************************************************************************/
 /*                 STM32F1xx Peripherals Interrupt Handlers                   */
