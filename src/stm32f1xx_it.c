@@ -30,6 +30,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_it.h"
 #include "stm32f10x_exti.h"
+#include "bdang_uart.h"
 
 /** @addtogroup IO_Toggle
   * @{
