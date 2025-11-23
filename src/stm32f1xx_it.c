@@ -29,8 +29,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_it.h"
-#include "stm32f10x_exti.h"
-#include "bdang_uart.h"
 
 /** @addtogroup IO_Toggle
   * @{
@@ -142,8 +140,23 @@ void PendSV_Handler(void)
  */
 void EXTI3_IRQHandler(void){
     if(EXTI_GetITStatus(EXTI_Line3) != RESET){
-        usart1_send_string("EXTI3\n");
-        EXTI_ClearITPendingBit(EXTI_Line3);  
+      uint32_t addr = readCurrentAddr();
+      uint8_t time[6];
+
+      ds1307_gettime(time);
+      uint8_t sec  = bcd2dec(time[0] & 0x7F);  
+      uint8_t min  = bcd2dec(time[1]);
+      uint8_t hour = bcd2dec(time[2] & 0x3F);  
+      uint8_t day  = time[3];
+      uint8_t date = bcd2dec(time[4]);
+      uint8_t mon  = bcd2dec(time[5]);
+      uint8_t year = bcd2dec(time[6]);
+      char str[26];
+      snprintf(str, sizeof(str),"User pressed at %02u:%02u:%02u\n",hour, min, sec);
+      Test_W25Q32_WriteRead(str, addr);
+
+      usart1_send_string(str);
+      EXTI_ClearITPendingBit(EXTI_Line3);  
     }
 }
 

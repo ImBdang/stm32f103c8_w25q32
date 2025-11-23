@@ -94,9 +94,34 @@ void W25Q32_WritePage(uint32_t address, uint8_t *data, uint16_t size) {
     for(uint16_t i = 0; i < size; i++) {
         SPI1_transfer_w25q32(data[i]);
     }
-    
+
     W25Q32_CS_HIGH();
     W25Q32_WaitBusy();
+}
+
+void initCurrentAddr(void){
+    uint8_t addr_bytes[3];
+    uint32_t next_addr = 0x002000;  
+    addr_bytes[0] = next_addr & 0xFF;         
+    addr_bytes[1] = (next_addr >> 8) & 0xFF;  
+    addr_bytes[2] = (next_addr >> 16) & 0xFF;
+    W25Q32_WritePage(0x000000, addr_bytes, 3); 
+}
+
+void updateCurrentAddr(uint32_t addr){
+    uint8_t addr_bytes[3];
+    uint32_t next_addr = addr;  
+    addr_bytes[0] = next_addr & 0xFF;         
+    addr_bytes[1] = (next_addr >> 8) & 0xFF;  
+    addr_bytes[2] = (next_addr >> 16) & 0xFF;
+    W25Q32_WritePage(0x000000, addr_bytes, 3); 
+}
+
+uint32_t readCurrentAddr(void){
+    uint8_t buffer[3];
+    W25Q32_ReadData(0x000000, buffer, 3);
+    uint32_t addr = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16);
+    return addr; 
 }
 
 /**
@@ -137,4 +162,21 @@ void W25Q32_WakeUp(void) {
     W25Q32_CS_LOW();
     SPI1_transfer_w25q32(W25Q32_CMD_RELEASE_POWER_DOWN);
     W25Q32_CS_HIGH();
+}
+
+void Test_W25Q32_WriteRead(char* str, uint32_t addr) {  
+    
+    // W25Q32_EraseSector(test_address);
+    // delay_ms(500); 
+    
+    // uint8_t write_data[20] = "HELLO WORLD STM32!"; 
+    uint8_t read_data[26] = {0};  
+    
+    W25Q32_WritePage(addr, str, 26);
+
+    W25Q32_ReadData(addr, read_data, 26);
+
+    addr += 26;
+    W25Q32_EraseSector(0x000000);
+    updateCurrentAddr(addr);
 }

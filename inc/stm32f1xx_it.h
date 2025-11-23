@@ -35,6 +35,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
+#include "stm32f10x_exti.h"
+#include "bdang_uart.h"
+#include "w25q32.h"
+#include "stdio.h"
+#include "bdang_ds1307.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

@@ -1,5 +1,8 @@
 #include "bdang_i2c1.h"
 
+/**
+ * @brief Init i2c1, SCL PB6, SDA PB7
+ */
 void init_i2c1(void){
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);

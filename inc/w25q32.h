@@ -37,9 +37,6 @@
 #define W25Q32_CS_LOW()   GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 #define W25Q32_CS_HIGH()  GPIO_SetBits(GPIOA, GPIO_Pin_4)
 
-/* Function Prototypes */
-void W25Q32_Init(void);
-
 // Basic Operations
 void W25Q32_ReadID(uint8_t *manufacturer, uint16_t *deviceID);
 uint8_t W25Q32_ReadStatusReg(void);
@@ -57,5 +54,11 @@ void W25Q32_ReadData(uint32_t address, uint8_t *buffer, uint32_t size);
 // Power Management
 void W25Q32_PowerDown(void);
 void W25Q32_WakeUp(void);
+
+void initCurrentAddr(void);
+uint32_t readCurrentAddr(void);
+void updateCurrentAddr(uint32_t addr);
+
+void Test_W25Q32_WriteRead(char* str, uint32_t addr);
 
 #endif /* __W25Q32_H */

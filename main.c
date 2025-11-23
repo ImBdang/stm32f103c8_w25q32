@@ -1,3 +1,4 @@
+#include "stdio.h"
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
@@ -15,34 +16,42 @@
 /* Declaration zone ------------------------------------------------------ */
 void SystemClock_Config(void);
 void Init_LedPc13(void);
-void Test_W25Q32_WriteRead(void);
+void Test_W25Q32_WriteRead(char* str, uint32_t addr);
 void Init_EXTI(void);
 
 
 /* Global variables ------------------------------------------------------ */
 volatile uint32_t msTicks = 0;
-
+uint32_t next_addr;
 
 /* MAIN function ---------------------------------------------------------- */
 int main(void) {
+
     SystemClock_Config();
     systick_init(1000);
     SPI1_Init();
+    W25Q32_EraseSector(0x000000);
+    W25Q32_EraseSector(0x002000);
+    initCurrentAddr();
+    next_addr = readCurrentAddr();
     Init_LedPc13();
     usart1_init();
     Init_EXTI();
     init_i2c1();
     ds1307_enable();
-    uint8_t time[6];
+    // uint8_t time[6];
     while(1) {
-        ds1307_gettime(time);
-        uint8_t sec = time[0];
-        uint8_t min = time[1];
-        uint8_t hour = time[2];
-        uint8_t day = time[3];
-        uint8_t date = time[4];
-        uint8_t month = time[5];
-        uint8_t year = time[6];
+        // ds1307_gettime(time);
+        // uint8_t sec  = bcd2dec(time[0] & 0x7F);  
+        // uint8_t min  = bcd2dec(time[1]);
+        // uint8_t hour = bcd2dec(time[2] & 0x3F);  
+        // uint8_t day  = time[3];
+        // uint8_t date = bcd2dec(time[4]);
+        // uint8_t mon  = bcd2dec(time[5]);
+        // uint8_t year = bcd2dec(time[6]);
+        // char str[26];
+        // snprintf(str, sizeof(str),"User pressed at %02u:%02u:%02u\n",hour, min, sec);
+        // Test_W25Q32_WriteRead(str, next_addr);
     }
     return 0;
 }
@@ -129,20 +138,4 @@ void Init_LedPc13(void){
     };
 
     GPIO_Init(GPIOC, &gpioc_pin13_config);
-}
-
-
-void Test_W25Q32_WriteRead(void) {
-    uint32_t test_address = 0x000000;  
-    
-    W25Q32_EraseSector(test_address);
-    delay_ms(500); 
-    
-    uint8_t write_data[20] = "HELLO WORLD STM32!"; 
-    uint8_t read_data[20] = {0};  
-    
-    W25Q32_WritePage(test_address, write_data, 19);
-    delay_ms(10); 
-    
-    W25Q32_ReadData(test_address, read_data, 19);
 }

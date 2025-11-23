@@ -71,3 +71,11 @@ void ds1307_enable(void){
     ds1307_send_data(sec);  
     ds1307_stop();
 }
+
+uint8_t bcd2dec(uint8_t val){
+    return ((val >> 4) * 10) + (val & 0x0F);
+}
+
+uint8_t dec2bcd(uint8_t val) {
+    return ((val / 10) << 4) | (val % 10);
+}
